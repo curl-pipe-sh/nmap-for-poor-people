@@ -17,8 +17,8 @@ tcp_port_check() {
   echo > "/dev/tcp/${h}/${p}" 2>/dev/null
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]
-then
+# if [[ "${BASH_SOURCE[0]}" == "${0}" ]]
+# then
   TIMEOUT=3
 
   while [[ -n "$1" ]]
@@ -59,4 +59,4 @@ then
       echo_error "$MESSAGE CLOSED"
     fi
   done
-fi
+# fi
