@@ -94,7 +94,7 @@ then
       unset "PIDS[${ENDED_PID}]"
     done
   else
-    echo_warning "wait does not support -p, the return code will be wrong"
+    echo_warning "wait does not support -p, the return code will be wrong" >&2
     wait
     RC="$?"
   fi
