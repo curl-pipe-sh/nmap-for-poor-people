@@ -50,13 +50,17 @@ tcp_port_check() {
 
   for PORT in "${PORTS[@]}"
   do
-    MESSAGE="${HOST}:${PORT}"
+    (
+      MESSAGE="${HOST}:${PORT}"
 
-    if tcp_port_check "$HOST" "$PORT" "$TIMEOUT"
-    then
-      echo_success "$MESSAGE open"
-    else
-      echo_error "$MESSAGE CLOSED"
-    fi
+      if tcp_port_check "$HOST" "$PORT" "$TIMEOUT"
+      then
+        echo_success "$MESSAGE open"
+      else
+        echo_error "$MESSAGE CLOSED"
+      fi
+    ) &
   done
+
+  wait
 # fi
