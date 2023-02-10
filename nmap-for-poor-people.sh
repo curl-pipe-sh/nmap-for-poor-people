@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+has_wait_p() {
+  wait --help | grep -q -- '-p'
+}
+
 usage() {
   echo "Usage: $0 [--timeout TIMEOUT] HOST PORT [PORT...]"
 }
@@ -12,6 +16,10 @@ echo_error() {
   echo -e "🔴 \e[31m${*}\e[0m"
 }
 
+echo_warning() {
+  echo -e "⚠️  \e[33m${*}\e[0m"
+}
+
 tcp_port_check() {
   local host="$1" port="$2" timeout="$3"
   timeout "$timeout" bash -c "echo > /dev/tcp/${host}/${port}" 2>/dev/null
@@ -19,6 +27,7 @@ tcp_port_check() {
 
 if ! (return 0 2>/dev/null)
 then
+  RC=0
   PORTS=()
   TIMEOUT=3
   PIDS=()
@@ -74,14 +83,21 @@ then
     PIDS[$!]="$!"
   done
 
-  while [[ "${#PIDS[@]}" -gt 0 ]]
-  do
-    if ! wait -n -p ENDED_PID
-    then
-      RC=1
-    fi
-    unset "PIDS[${ENDED_PID}]"
-  done
+  if has_wait_p
+  then
+    while [[ "${#PIDS[@]}" -gt 0 ]]
+    do
+      if ! wait -n -p ENDED_PID
+      then
+        RC=1
+      fi
+      unset "PIDS[${ENDED_PID}]"
+    done
+  else
+    echo_warning "wait does not support -p, the return code will be wrong"
+    wait
+    RC="$?"
+  fi
 
   exit $RC
 fi
