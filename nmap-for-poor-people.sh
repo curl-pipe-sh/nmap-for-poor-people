@@ -21,6 +21,7 @@ if ! (return 0 2>/dev/null)
 then
   PORTS=()
   TIMEOUT=3
+  PIDS=()
 
   while [[ -n "$1" ]]
   do
@@ -67,9 +68,20 @@ then
         echo_success "$MESSAGE OPEN"
       else
         echo_error "$MESSAGE CLOSED"
+        exit 1
       fi
     ) &
+    PIDS[$!]="$!"
   done
 
-  wait
+  while [[ "${#PIDS[@]}" -gt 0 ]]
+  do
+    if ! wait -n -p ENDED_PID
+    then
+      RC=1
+    fi
+    unset "PIDS[${ENDED_PID}]"
+  done
+
+  exit $RC
 fi
