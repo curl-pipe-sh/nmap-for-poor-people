@@ -13,8 +13,8 @@ echo_error() {
 }
 
 tcp_port_check() {
-  local h="$1" p="$2"
-  echo > "/dev/tcp/${h}/${p}" 2>/dev/null
+  local host="$1" port="$2" timeout="$3"
+  timeout "$timeout" bash -c "echo > /dev/tcp/${host}/${port}" 2>/dev/null
 }
 
 # if [[ "${BASH_SOURCE[0]}" == "${0}" ]]
@@ -52,7 +52,7 @@ tcp_port_check() {
   do
     MESSAGE="${HOST}:${PORT}"
 
-    if timeout "$TIMEOUT" tcp_port_check "$HOST" "$PORT" &>/dev/null
+    if tcp_port_check "$HOST" "$PORT" "$TIMEOUT"
     then
       echo_success "$MESSAGE open"
     else
