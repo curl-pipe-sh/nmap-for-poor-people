@@ -8,20 +8,33 @@ echo_error() {
   echo -e "🔴 \e[31m${*}\e[0m"
 }
 
+while [[ -n "$1" ]]
+do
+  case "$1" in
+    -t|--timeout)
+      TIMEOUT="$2"
+      shift 2
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
 HOST="$1"
 shift
 PORTS=("$@")
 
 if [[ -z "$HOST" ]] || [[ -z "${PORTS[*]}" ]]
 then
-  echo "Usage: HOST PORT [PORT...]" >&2
+  echo "Usage: $0 [--timeout TIMEOUT] HOST PORT [PORT...]" >&2
   exit 2
 fi
 
 for PORT in "${PORTS[@]}"
 do
   MESSAGE="${HOST}:${PORT}"
-  if echo > "/dev/tcp/${HOST}/${PORT}" 2> /dev/null
+  if timeout "${TIMEOUT:-5}" echo > "/dev/tcp/${HOST}/${PORT}" 2> /dev/null
   then
     echo_success "$MESSAGE open"
   else
